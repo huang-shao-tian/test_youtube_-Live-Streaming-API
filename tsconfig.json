@@ -18,6 +18,7 @@
 
     // その他の重要な設定
     "skipLibCheck": true,    // 宣言ファイル(.d.ts)の型チェックをスキップ
+    "resolveJsonModule": true, // JSONモジュールを解決
     "forceConsistentCasingInFileNames": true  // ファイル名の大文字小文字の一貫性を強制
   },
 
