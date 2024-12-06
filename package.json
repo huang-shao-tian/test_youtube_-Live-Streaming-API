@@ -6,7 +6,8 @@
   "scripts": {
     "test": "ts-node src/tests/live_streaming_api.ts",
     "build": "tsc",
-    "start": "ts-node src/index.ts"
+    "start": "ts-node src/index.ts",
+    "session_secret:generate": "ts-node scripts/generateSecret.ts"
   },
   "keywords": [],
   "author": "",
