@@ -12,7 +12,6 @@ interface OAuthTokens {
   refresh_token: string | null | undefined;
 }
 
-// ファイルの先頭に型定義を追加
 declare module "express-session" {
   interface SessionData {
     state: string;
@@ -29,7 +28,6 @@ app.use(
   })
 );
 
-// ルートハンドラーをここに追加
 app.get("/auth", (req: express.Request, res: express.Response) => {
   const authUrl = generateAuthUrl(req);
   res.redirect(authUrl);
@@ -68,19 +66,15 @@ app.get(
   }
 );
 
-// 先にoauth2Clientを初期化
+// Initialize oauth2Client
 export const oauth2Client = new google.auth.OAuth2(
   clientSecret.web.client_id,
   clientSecret.web.client_secret,
   clientSecret.web.redirect_uris[0]
 );
 
-const scopes = [
-  // 'https://www.googleapis.com/auth/youtube.readonly',
-  "https://www.googleapis.com/auth/youtube.force-ssl",
-];
+const scopes = ["https://www.googleapis.com/auth/youtube.force-ssl"];
 
-// stateの生成とURLの作成をファンクションとして定義
 function generateAuthUrl(req: express.Request) {
   const state = crypto.randomBytes(32).toString("hex");
   req.session.state = state;
@@ -93,7 +87,7 @@ function generateAuthUrl(req: express.Request) {
   });
 }
 
-// トークンを.envファイルに保存する関数
+// Function to save tokens to .env file
 const saveOAuthTokens = async (
   tokens: OAuthTokens,
   envPath: string = ".env"
@@ -110,22 +104,17 @@ const saveOAuthTokens = async (
   const absolutePath = path.resolve(ROOT_DIR, envPath);
 
   try {
-    // .envファイルが存在するか確認
     let envContent = "";
     try {
       envContent = await fs.readFile(absolutePath, "utf-8");
-    } catch (error) {
-      // ファイルが存在しない場合は空文字列のまま
-    }
+    } catch (error) {}
 
-    // 既存の値を更新または新しい値を追加
     const envLines = envContent
       .split("\n")
       .filter((line) => line.trim() !== "");
     const updatedLines = envLines.filter((line) => {
       if (!line.startsWith("ACCESS_TOKEN=")) {
         if (line.startsWith("REFRESH_TOKEN=")) {
-          // refresh_tokenが存在する場合のみ、既存のREFRESH_TOKEN行を削除
           return !tokens.refresh_token;
         }
         return true;
@@ -133,13 +122,11 @@ const saveOAuthTokens = async (
       return false;
     });
 
-    // 新しいトークンを追加
     if (tokens.access_token)
       updatedLines.push(`ACCESS_TOKEN=${tokens.access_token}`);
     if (tokens.refresh_token)
       updatedLines.push(`REFRESH_TOKEN=${tokens.refresh_token}`);
 
-    // ファイルに書き込み
     await fs.writeFile(absolutePath, updatedLines.join("\n") + "\n", "utf-8");
     console.log(`OAuth tokens have been saved to ${absolutePath}`);
   } catch (error) {
@@ -148,7 +135,7 @@ const saveOAuthTokens = async (
   }
 };
 
-// 起動時に実行
+// Execute on startup
 const loadAndSetTokens = () => {
   const accessToken = process.env.ACCESS_TOKEN;
   const refreshToken = process.env.REFRESH_TOKEN;
@@ -158,14 +145,12 @@ const loadAndSetTokens = () => {
       access_token: accessToken,
       refresh_token: refreshToken,
     });
-    console.log("既存のトークンを読み込みました");
+    console.log("Loaded existing tokens");
   }
 };
 
-// 最後に関数を実行
 loadAndSetTokens();
 
-// サーバーを起動
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
