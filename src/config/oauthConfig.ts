@@ -57,7 +57,7 @@ app.get(
             access_token: tokens.access_token ?? null,
             refresh_token: tokens.refresh_token ?? null,
           });
-          res.send("認証成功！");
+          res.send("Authentication successful!");
         })
         .catch(next);
     } catch (error) {
@@ -95,7 +95,7 @@ const saveOAuthTokens = async (
   const getRootPath = () => {
     const rootPath = process.env.ROOT_DIR;
     if (!rootPath) {
-      throw new Error("環境変数 ROOT_DIR が設定されていません。");
+      throw new Error("Environment variable ROOT_DIR is not set.");
     }
     return rootPath;
   };
