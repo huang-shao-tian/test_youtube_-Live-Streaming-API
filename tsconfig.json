@@ -1,28 +1,16 @@
 {
   "compilerOptions": {
-    // ECMAScript ターゲットバージョン
-    "target": "ES2020",       // モダンなJavaScript機能を使用可能
-
-    // モジュールシステム
-    "module": "commonjs",     // Node.js 互換のモジュールシステム
-
-    // ファイル構成
-    "outDir": "./dist",      // コンパイル後のファイル出力先
-    "rootDir": "./src",      // TypeScriptソースコードのルートディレクトリ
-
-    // 型チェックの厳格性
-    "strict": true,          // すべての厳格な型チェックオプションを有効化
-
-    // 相互運用性
-    "esModuleInterop": true, // CommonJSモジュールをES Modulesとして使用可能
-
-    // その他の重要な設定
-    "skipLibCheck": true,    // 宣言ファイル(.d.ts)の型チェックをスキップ
-    "resolveJsonModule": true, // JSONモジュールを解決
-    "forceConsistentCasingInFileNames": true  // ファイル名の大文字小文字の一貫性を強制
+    "target": "ES2020",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true
   },
 
-  // コンパイル対象
-  "include": ["src/**/*"],   // src配下のすべてのファイルを含む
-  "exclude": ["node_modules"] // node_modulesを除外
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
 }
