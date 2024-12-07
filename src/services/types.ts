@@ -1,65 +1,51 @@
 // src/services/types.ts
 
 /**
- * YouTube APIのエラーコード
+ * Error codes for YouTube API
  */
 export enum YouTubeAPIErrorCode {
-  /** クォータ超過 */
   QUOTA_EXCEEDED = "quotaExceeded",
-  /** レート制限超過 */
   RATE_LIMIT_EXCEEDED = "rateLimitExceeded",
-  /** 認証エラー */
   AUTHENTICATION_ERROR = "authenticationError",
-  /** 無効なパラメータ */
   INVALID_PARAMETER = "invalidParameter",
-  /** リソースが見つからない */
   NOT_FOUND = "notFound",
-  /** その他のエラー */
   UNKNOWN = "unknown",
 }
 
 /**
- * YouTube APIのエラー情報
+ * YouTube API error information
  */
 export interface YouTubeAPIErrorInfo {
-  /** エラーコード */
   code: YouTubeAPIErrorCode;
-  /** エラーメッセージ */
   message: string;
-  /** リトライ可能かどうか */
   retryable: boolean;
 }
 
 /**
- * チャット取得の設定オプション
+ * Chat retrieval configuration options
  */
 export interface ChatRetrievalConfig {
-  /** 取得対象のライブチャットID */
   liveChatId: string;
-  /** ポーリング間隔（ミリ秒） */
   pollingIntervalMs: number;
-  /** 1回のリクエストで取得する最大メッセージ数（デフォルト: 200） */
+  /** Maximum number of messages per request (default: 200) */
   maxResults?: number;
-  /** エラー時の最大リトライ回数（デフォルト: 3） */
+  /** Maximum number of retries on error (default: 3) */
   maxRetries?: number;
-  /** リトライ時の待機時間（ミリ秒）（デフォルト: 5000） */
+  /** Delay between retries in milliseconds (default: 5000) */
   retryDelayMs?: number;
 }
 
 /**
- * メッセージハンドラーのコンテキスト情報
+ * Message handler context information
  */
 export interface MessageHandlerContext {
-  /** メッセージの取得時刻 */
   retrievedAt: Date;
-  /** 累積メッセージ数 */
   totalMessages: number;
-  /** エラーが発生した場合の情報 */
   error?: YouTubeAPIErrorInfo;
 }
 
 /**
- * メッセージハンドラー関数の型定義
+ * Message handler function type definition
  */
 export type MessageHandler = (
   messages: ChatMessage[],
@@ -67,135 +53,116 @@ export type MessageHandler = (
 ) => Promise<void>;
 
 /**
- * チャット取得サービスのインターフェース
+ * Chat retrieval service interface
  */
 export interface ChatRetrievalService {
   /**
-   * チャット取得を開始
-   * @param config 取得設定
-   * @throws {YouTubeAPIError} API呼び出しに失敗した場合
+   * Start chat retrieval
+   * @param config Retrieval configuration
+   * @throws {YouTubeAPIError} When API call fails
    */
   start(config: ChatRetrievalConfig): Promise<void>;
 
   /**
-   * チャット取得を停止
+   * Stop chat retrieval
    */
   stop(): void;
 
   /**
-   * メッセージハンドラーを追加
-   * @param handler メッセージを処理するハンドラー関数
+   * Add message handler
+   * @param handler Function to process messages
    */
   addMessageHandler(handler: MessageHandler): void;
 
   /**
-   * メッセージハンドラーを削除
-   * @param handler 削除するハンドラー関数
+   * Remove message handler
+   * @param handler Handler function to remove
    */
   removeMessageHandler(handler: MessageHandler): void;
 
   /**
-   * 現在の実行状態を取得
+   * Get current execution status
    */
   getStatus(): ChatRetrievalStatus;
 }
 
 /**
- * チャット取得の実行状態
+ * Chat retrieval execution status
  */
 export interface ChatRetrievalStatus {
-  /** 実行中かどうか */
   isRunning: boolean;
-  /** 最後のメッセージ取得時刻 */
   lastRetrievalTime?: Date;
-  /** 累積メッセージ数 */
   totalMessages: number;
-  /** 現在のエラー情報 */
   currentError?: YouTubeAPIErrorInfo;
 }
 
 /**
- * チャットメッセージの種類を定義
+ * Chat message types
  */
 export enum ChatMessageType {
-  /** 通常のテキストメッセージ */
+  /** Normal text message */
   TEXT_MESSAGE = "textMessageEvent",
-  /** スーパーチャット */
   SUPER_CHAT = "superChatEvent",
-  /** スーパーステッカー */
   SUPER_STICKER = "superStickerEvent",
-  /** メッセージ削除 */
   MESSAGE_DELETED = "messageDeletedEvent",
-  /** チャット終了 */
   CHAT_ENDED = "chatEndedEvent",
 }
 
 /**
- * チャットメッセージの著者情報
+ * Chat author details
  */
 export interface ChatAuthorDetails {
-  /** チャンネルID */
   channelId: string;
-  /** チャンネルURL */
   channelUrl: string;
-  /** 表示名 */
   displayName: string;
-  /** プロフィール画像URL */
   profileImageUrl: string;
-  /** 認証済みかどうか */
   isVerified: boolean;
-  /** 配信者かどうか */
+  /** Whether the user is the stream owner */
   isChatOwner: boolean;
-  /** メンバーシップ加入者かどうか */
+  /** Whether the user is a channel member */
   isChatSponsor: boolean;
-  /** モデレーターかどうか */
+  /** Whether the user is a moderator */
   isChatModerator: boolean;
 }
 
 /**
- * スーパーチャットの詳細情報
+ * Super Chat details
  */
 export interface SuperChatDetails {
-  /** 金額（マイクロ単位） */
   amountMicros: number;
-  /** 通貨コード（ISO 4217） */
+  /** Currency code (ISO 4217) */
   currency: string;
-  /** 表示用金額文字列 */
+  /** Formatted amount string */
   amountDisplayString: string;
-  /** ユーザーコメント */
+  /** User comment */
   userComment: string;
-  /** スーパーチャットの階層（1-5） */
+  /** Super Chat tier (1-5) */
   tier: number;
 }
 
 /**
- * チャットメッセージの基本情報
+ * Basic chat message information
  */
 export interface ChatMessageSnippet {
-  /** メッセージの種類 */
   type: ChatMessageType;
-  /** ライブチャットID */
   liveChatId: string;
-  /** 投稿日時（ISO 8601形式） */
+  /** Published time (ISO 8601 format) */
   publishedAt: string;
-  /** メッセージが表示可能かどうか */
+  /** Whether the message has displayable content */
   hasDisplayContent: boolean;
-  /** 表示メッセージ */
   displayMessage: string;
 }
 
 /**
- * チャットメッセージの完全な構造
+ * Complete chat message structure
  */
 export interface ChatMessage {
-  /** メッセージの一意のID */
+  /** Unique message ID */
   id: string;
-  /** メッセージの種類を示す文字列 */
+  /** Message type string */
   kind: "youtube#liveChatMessage";
-  /** メッセージの基本情報 */
+  /** Basic message information */
   snippet: ChatMessageSnippet;
-  /** 著者の詳細情報 */
   authorDetails: ChatAuthorDetails;
-  /** スーパーチャットの情報（存在する場合） */
   superChatDetails?: SuperChatDetails;
 }
