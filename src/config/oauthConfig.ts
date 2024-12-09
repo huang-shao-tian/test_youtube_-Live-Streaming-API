@@ -109,7 +109,8 @@ const saveOAuthTokens = async (
     try {
       tokensContent = JSON.parse(await fs.readFile(absolutePath, "utf-8"));
     } catch (error) {
-      tokensContent = {};
+      console.error(`Error loading OAuth tokens from ${absolutePath}:`, error);
+      throw error;
     }
 
     if (tokens.access_token) tokensContent.ACCESS_TOKEN = tokens.access_token;
