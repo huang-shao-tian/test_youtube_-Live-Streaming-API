@@ -4,4 +4,4 @@ dist/
 *.log
 .DS_Store
 client_secret.json
-OAuth2.0-tokens.json
+src/credentials/
