@@ -6,7 +6,7 @@
   "scripts": {
     "test": "tsx src/tests/liveStreamingApi.ts",
     "build": "tsc",
-    "start": "tsx src/config/oauthConfig.ts",
+    "start": "tsx src/config/oauthConfig.ts"
   },
   "keywords": [],
   "author": "",
