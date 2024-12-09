@@ -7,7 +7,6 @@
     "test": "tsx src/tests/liveStreamingApi.ts",
     "build": "tsc",
     "start": "tsx src/config/oauthConfig.ts",
-    "session_secret:generate": "tsx scripts/generateSecret.ts"
   },
   "keywords": [],
   "author": "",
