@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "ts-node src/tests/liveStreamingApi.ts",
+    "test": "tsx src/tests/liveStreamingApi.ts",
     "build": "tsc",
-    "start": "ts-node src/config/oauthConfig.ts",
-    "session_secret:generate": "ts-node scripts/generateSecret.ts"
+    "start": "tsx src/config/oauthConfig.ts",
+    "session_secret:generate": "tsx scripts/generateSecret.ts"
   },
   "keywords": [],
   "author": "",
@@ -16,7 +16,7 @@
     "@types/express": "^5.0.0",
     "@types/express-session": "^1.18.1",
     "@types/node": "^22.10.1",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   },
   "dependencies": {
