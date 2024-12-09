@@ -42,8 +42,8 @@ app.get(
     next: express.NextFunction
   ): void => {
     try {
-      const state = req.query.state as string;
-      const code = req.query.code as string;
+      const state = z.string().min(32).parse(req.query.state);
+      const code = z.string().parse(req.query.code);
 
       if (state !== req.session.state) {
         res.status(401).send("Invalid state parameter");
