@@ -6,6 +6,7 @@ import session from "express-session";
 import clientSecret from "./client_secret.json";
 import fs from "fs/promises";
 import path from "path";
+import { z } from "zod";
 
 interface OAuthTokens {
   access_token: string | null | undefined;
@@ -22,7 +23,7 @@ const app = express();
 
 app.use(
   session({
-    secret: process.env.SESSION_SECRET as string,
+    secret: z.string().min(32).parse(process.env.SESSION_SECRET),
     resave: false,
     saveUninitialized: true,
   })
