@@ -166,3 +166,8 @@ export interface ChatMessage {
   authorDetails: ChatAuthorDetails;
   superChatDetails?: SuperChatDetails;
 }
+
+export interface OAuthTokens {
+  access_token: string | null | undefined;
+  refresh_token: string | null | undefined;
+}

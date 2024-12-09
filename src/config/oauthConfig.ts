@@ -4,14 +4,10 @@ import crypto from "crypto";
 import express from "express";
 import session from "express-session";
 import clientSecret from "./client_secret.json";
+import { OAuthTokens } from "../services/types";
 import fs from "fs/promises";
 import path from "path";
 import { z } from "zod";
-
-interface OAuthTokens {
-  access_token: string | null | undefined;
-  refresh_token: string | null | undefined;
-}
 
 declare module "express-session" {
   interface SessionData {
