@@ -27,7 +27,10 @@ const saveSecretToEnv = async (
     let envContent = "";
     try {
       envContent = await fs.readFile(absolutePath, "utf-8");
-    } catch (error) {}
+    } catch (error) {
+      console.error(`Error reading .env file at ${absolutePath}:`, error);
+      throw error;
+    }
 
     const envLines = envContent
       .split("\n")
