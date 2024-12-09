@@ -91,7 +91,7 @@ function generateAuthUrl(req: express.Request) {
 // Function to save tokens to .env file
 const saveOAuthTokens = async (
   tokens: OAuthTokens,
-  envPath: string = ".env"
+  savePath: string = "src/credentials/OAuth2.0-tokens.json"
 ): Promise<void> => {
   const getRootPath = () => {
     const rootPath = process.env.ROOT_DIR;
@@ -102,44 +102,63 @@ const saveOAuthTokens = async (
   };
 
   const ROOT_DIR = getRootPath();
-  const absolutePath = path.resolve(ROOT_DIR, envPath);
+  const absolutePath = path.resolve(ROOT_DIR, savePath);
 
   try {
-    let envContent = "";
+    let tokensContent: { ACCESS_TOKEN?: string; REFRESH_TOKEN?: string } = {};
     try {
-      envContent = await fs.readFile(absolutePath, "utf-8");
-    } catch (error) {}
+      tokensContent = JSON.parse(await fs.readFile(absolutePath, "utf-8"));
+    } catch (error) {
+      tokensContent = {};
+    }
 
-    const envLines = envContent
-      .split("\n")
-      .filter((line) => line.trim() !== "");
-    const updatedLines = envLines.filter((line) => {
-      if (!line.startsWith("ACCESS_TOKEN=")) {
-        if (line.startsWith("REFRESH_TOKEN=")) {
-          return !tokens.refresh_token;
-        }
-        return true;
-      }
-      return false;
-    });
-
-    if (tokens.access_token)
-      updatedLines.push(`ACCESS_TOKEN=${tokens.access_token}`);
+    if (tokens.access_token) tokensContent.ACCESS_TOKEN = tokens.access_token;
     if (tokens.refresh_token)
-      updatedLines.push(`REFRESH_TOKEN=${tokens.refresh_token}`);
+      tokensContent.REFRESH_TOKEN = tokens.refresh_token;
 
-    await fs.writeFile(absolutePath, updatedLines.join("\n") + "\n", "utf-8");
+    await fs.writeFile(
+      absolutePath,
+      JSON.stringify(tokensContent, null, 2),
+      "utf-8"
+    );
     console.log(`OAuth tokens have been saved to ${absolutePath}`);
   } catch (error) {
-    console.error("Error saving OAuth tokens to .env file:", error);
+    console.error(`Error saving OAuth tokens to ${absolutePath}:`, error);
     throw error;
   }
 };
 
 // Execute on startup
-const loadAndSetTokens = () => {
-  const accessToken = process.env.ACCESS_TOKEN;
-  const refreshToken = process.env.REFRESH_TOKEN;
+const loadAndSetTokens = async () => {
+  const getRootPath = () => {
+    const rootPath = process.env.ROOT_DIR;
+    if (!rootPath) {
+      throw new Error("Environment variable ROOT_DIR is not set.");
+    }
+    return rootPath;
+  };
+
+  const ROOT_DIR = getRootPath();
+  const absolutePath = path.resolve(
+    ROOT_DIR,
+    "src/credentials/OAuth2.0-tokens.json"
+  );
+
+  let tokensContent: { ACCESS_TOKEN?: string; REFRESH_TOKEN?: string } = {};
+
+  try {
+    const fileContent = await fs.readFile(absolutePath, "utf-8");
+    if (!fileContent) {
+      console.warn(`The file ${absolutePath} is empty.`);
+      return;
+    }
+    tokensContent = JSON.parse(fileContent);
+  } catch (error) {
+    console.error(`Error loading OAuth tokens from ${absolutePath}:`, error);
+    throw error;
+  }
+  const accessToken = tokensContent.ACCESS_TOKEN;
+  const refreshToken = tokensContent.REFRESH_TOKEN;
 
   if (accessToken || refreshToken) {
     oauth2Client.setCredentials({
