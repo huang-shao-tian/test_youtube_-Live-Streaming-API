@@ -30,7 +30,7 @@ app.get("/auth", (req, res) => {
   res.redirect(authUrl);
 });
 
-app.get("/oauth2callback", (req, res, next: express.NextFunction) => {
+app.get("/oauth2callback", async (req, res, next: express.NextFunction) => {
   try {
     const state = z.string().min(32).parse(req.query.state);
     const code = z.string().parse(req.query.code);
@@ -40,17 +40,13 @@ app.get("/oauth2callback", (req, res, next: express.NextFunction) => {
       return;
     }
 
-    oauth2Client
-      .getToken(code)
-      .then(({ tokens }) => {
-        oauth2Client.setCredentials(tokens);
-        saveOAuthTokens({
-          access_token: tokens.access_token ?? null,
-          refresh_token: tokens.refresh_token ?? null,
-        });
-        res.send("Authentication successful!");
-      })
-      .catch(next);
+    const { tokens } = await oauth2Client.getToken(code);
+    oauth2Client.setCredentials(tokens);
+    await saveOAuthTokens({
+      access_token: tokens.access_token ?? null,
+      refresh_token: tokens.refresh_token ?? null,
+    });
+    res.send("Authentication successful!");
   } catch (error) {
     next(error);
   }
