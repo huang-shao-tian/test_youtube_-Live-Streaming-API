@@ -1,5 +1,3 @@
-// src/services/chatRetrieval.ts
-
 import { google, youtube_v3 } from "googleapis";
 import { OAuth2Client } from "googleapis-common";
 import {

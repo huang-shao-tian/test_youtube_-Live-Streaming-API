@@ -1,5 +1,3 @@
-// src/services/types.ts
-
 /**
  * Error codes for YouTube API
  */
