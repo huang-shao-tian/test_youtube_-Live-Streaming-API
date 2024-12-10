@@ -24,7 +24,7 @@ export class YouTubeChatRetrieval {
 
   constructor(private readonly auth: OAuth2Client) {}
 
-  public async start(config: ChatRetrievalConfig): Promise<void> {
+  public async start(config: ChatRetrievalConfig) {
     if (this.isRunning) {
       throw new Error("Chat retrieval is already running");
     }
@@ -55,7 +55,7 @@ export class YouTubeChatRetrieval {
     return { ...this.status };
   }
 
-  private async pollMessages(config: ChatRetrievalConfig): Promise<void> {
+  private async pollMessages(config: ChatRetrievalConfig) {
     if (!this.isRunning) return;
 
     try {
@@ -169,7 +169,7 @@ export class YouTubeChatRetrieval {
     });
   }
 
-  private async notifyHandlers(messages: ChatMessage[]): Promise<void> {
+  private async notifyHandlers(messages: ChatMessage[]) {
     const context = {
       retrievedAt: new Date(),
       totalMessages: this.status.totalMessages,
