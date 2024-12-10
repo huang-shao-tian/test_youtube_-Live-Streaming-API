@@ -30,7 +30,7 @@ app.get("/auth", (req, res) => {
   res.redirect(authUrl);
 });
 
-app.get("/oauth2callback", (req, res, next: express.NextFunction): void => {
+app.get("/oauth2callback", (req, res, next: express.NextFunction) => {
   try {
     const state = z.string().min(32).parse(req.query.state);
     const code = z.string().parse(req.query.code);
