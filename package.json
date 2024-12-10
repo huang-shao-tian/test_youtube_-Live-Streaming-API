@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "tsx src/tests/liveStreamingApi.ts",
+    "test": "tsx src/quickTest.ts",
     "build": "tsc",
     "start": "tsx src/config/oauthConfig.ts"
   },
