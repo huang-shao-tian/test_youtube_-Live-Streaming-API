@@ -25,43 +25,36 @@ app.use(
   })
 );
 
-app.get("/auth", (req: express.Request, res: express.Response) => {
+app.get("/auth", (req, res) => {
   const authUrl = generateAuthUrl(req);
   res.redirect(authUrl);
 });
 
-app.get(
-  "/oauth2callback",
-  (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ): void => {
-    try {
-      const state = z.string().min(32).parse(req.query.state);
-      const code = z.string().parse(req.query.code);
+app.get("/oauth2callback", (req, res, next: express.NextFunction): void => {
+  try {
+    const state = z.string().min(32).parse(req.query.state);
+    const code = z.string().parse(req.query.code);
 
-      if (state !== req.session.state) {
-        res.status(401).send("Invalid state parameter");
-        return;
-      }
-
-      oauth2Client
-        .getToken(code)
-        .then(({ tokens }) => {
-          oauth2Client.setCredentials(tokens);
-          saveOAuthTokens({
-            access_token: tokens.access_token ?? null,
-            refresh_token: tokens.refresh_token ?? null,
-          });
-          res.send("Authentication successful!");
-        })
-        .catch(next);
-    } catch (error) {
-      next(error);
+    if (state !== req.session.state) {
+      res.status(401).send("Invalid state parameter");
+      return;
     }
+
+    oauth2Client
+      .getToken(code)
+      .then(({ tokens }) => {
+        oauth2Client.setCredentials(tokens);
+        saveOAuthTokens({
+          access_token: tokens.access_token ?? null,
+          refresh_token: tokens.refresh_token ?? null,
+        });
+        res.send("Authentication successful!");
+      })
+      .catch(next);
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 // Initialize oauth2Client
 export const oauth2Client = new google.auth.OAuth2(
