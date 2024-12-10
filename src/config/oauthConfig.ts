@@ -4,7 +4,7 @@ import crypto from "crypto";
 import express from "express";
 import session from "express-session";
 import clientSecret from "./client_secret.json";
-import { OAuthTokens } from "../services/types";
+import { OAuthTokens } from "../services/types.js";
 import fs from "fs/promises";
 import path from "path";
 import { z } from "zod";

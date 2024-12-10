@@ -1,6 +1,6 @@
 import { google } from "googleapis";
-import { oauth2Client } from "./config/oauthConfig";
-import { YouTubeChatRetrieval } from "./services/chatRetrieval";
+import { oauth2Client } from "./config/oauthConfig.js";
+import { YouTubeChatRetrieval } from "./services/chatRetrieval.js";
 
 async function quickTest() {
   const youtube = google.youtube({

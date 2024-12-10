@@ -9,7 +9,7 @@ import {
   MessageHandler,
   YouTubeAPIErrorCode,
   YouTubeAPIErrorInfo,
-} from "./types";
+} from "./types.js";
 
 export class YouTubeChatRetrieval implements ChatRetrievalService {
   private youtube = google.youtube("v3");
