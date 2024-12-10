@@ -7,7 +7,7 @@
   "scripts": {
     "test": "tsx src/quickTest.ts",
     "build": "tsc",
-    "start": "tsx src/config/oauthConfig.ts"
+    "start": "tsx src/config/oauth2Server.ts"
   },
   "keywords": [],
   "author": "",

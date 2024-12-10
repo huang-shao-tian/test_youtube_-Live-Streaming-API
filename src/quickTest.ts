@@ -1,5 +1,5 @@
 import { google } from "googleapis";
-import { oauth2Client } from "./config/oauthConfig.js";
+import { oauth2Client } from "./config/oauth2Client.js";
 import { YouTubeChatRetrieval } from "./services/chatRetrieval.js";
 
 async function quickTest() {
