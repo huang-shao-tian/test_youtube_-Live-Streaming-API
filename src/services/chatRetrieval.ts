@@ -16,7 +16,6 @@ export class YouTubeChatRetrieval {
   private isRunning: boolean = false;
   private nextPageToken: string | null = null;
   private messageHandlers: MessageHandler[] = [];
-  private pollingTimeout: NodeJS.Timeout | null = null;
   private status: ChatRetrievalStatus = {
     isRunning: false,
     totalMessages: 0,
@@ -31,16 +30,12 @@ export class YouTubeChatRetrieval {
 
     this.isRunning = true;
     this.status.isRunning = true;
-    await this.pollMessages(config);
+    await this.startMessagePolling(config);
   }
 
   public stop(): void {
     this.isRunning = false;
     this.status.isRunning = false;
-    if (this.pollingTimeout) {
-      clearTimeout(this.pollingTimeout);
-      this.pollingTimeout = null;
-    }
   }
 
   public addMessageHandler(handler: MessageHandler): void {
@@ -55,49 +50,49 @@ export class YouTubeChatRetrieval {
     return { ...this.status };
   }
 
-  private async pollMessages(config: ChatRetrievalConfig) {
-    if (!this.isRunning) return;
+  private async startMessagePolling(config: ChatRetrievalConfig) {
+    while (this.isRunning) {
+      try {
+        const startTime = Date.now();
 
-    try {
-      const response = await this.youtube.liveChatMessages.list({
-        auth: this.auth,
-        part: ["snippet", "authorDetails"],
-        liveChatId: config.liveChatId,
-        pageToken: this.nextPageToken || undefined,
-        maxResults: config.maxResults || 200,
-      });
+        const response = await this.youtube.liveChatMessages.list({
+          auth: this.auth,
+          part: ["snippet", "authorDetails"],
+          liveChatId: config.liveChatId,
+          pageToken: this.nextPageToken || undefined,
+          maxResults: config.maxResults || 200,
+        });
+        const data = response.data;
+        const messages = this.transformMessages(data.items || []);
+        this.status.totalMessages += messages.length;
+        this.status.lastRetrievalTime = new Date();
 
-      const data = response.data;
-      const messages = this.transformMessages(data.items || []);
-      this.status.totalMessages += messages.length;
-      this.status.lastRetrievalTime = new Date();
+        if (messages.length > 0) {
+          await this.notifyHandlers(messages);
+        }
 
-      if (messages.length > 0) {
-        await this.notifyHandlers(messages);
-      }
+        this.nextPageToken = data.nextPageToken || null;
+        const interval = data.pollingIntervalMillis || config.pollingIntervalMs;
 
-      this.nextPageToken = data.nextPageToken || null;
-      const interval = data.pollingIntervalMillis || config.pollingIntervalMs;
+        const elapsedTime = Date.now() - startTime;
+        const remainingTime = interval - elapsedTime;
 
-      this.pollingTimeout = setTimeout(
-        () => this.pollMessages(config),
-        interval
-      );
-    } catch (error) {
-      const apiError = this.handleError(error);
-      this.status.currentError = apiError;
+        await new Promise((resolve) => setTimeout(resolve, remainingTime));
+      } catch (error) {
+        const apiError = this.handleError(error);
+        this.status.currentError = apiError;
 
-      if (
-        apiError.retryable &&
-        (!config.maxRetries || this.status.totalMessages < config.maxRetries)
-      ) {
-        this.pollingTimeout = setTimeout(
-          () => this.pollMessages(config),
-          config.retryDelayMs || 5000
-        );
-      } else {
-        this.stop();
-        throw error;
+        if (
+          apiError.retryable &&
+          (!config.maxRetries || this.status.totalMessages < config.maxRetries)
+        ) {
+          await new Promise((resolve) =>
+            setTimeout(resolve, config.retryDelayMs || 5000)
+          );
+        } else {
+          this.stop();
+          throw error;
+        }
       }
     }
   }
