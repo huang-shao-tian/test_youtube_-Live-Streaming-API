@@ -51,40 +51,6 @@ export type MessageHandler = (
 ) => Promise<void>;
 
 /**
- * Chat retrieval service interface
- */
-export interface ChatRetrievalService {
-  /**
-   * Start chat retrieval
-   * @param config Retrieval configuration
-   * @throws {YouTubeAPIError} When API call fails
-   */
-  start(config: ChatRetrievalConfig): Promise<void>;
-
-  /**
-   * Stop chat retrieval
-   */
-  stop(): void;
-
-  /**
-   * Add message handler
-   * @param handler Function to process messages
-   */
-  addMessageHandler(handler: MessageHandler): void;
-
-  /**
-   * Remove message handler
-   * @param handler Handler function to remove
-   */
-  removeMessageHandler(handler: MessageHandler): void;
-
-  /**
-   * Get current execution status
-   */
-  getStatus(): ChatRetrievalStatus;
-}
-
-/**
  * Chat retrieval execution status
  */
 export interface ChatRetrievalStatus {

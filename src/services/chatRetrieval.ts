@@ -4,7 +4,6 @@ import {
   ChatMessage,
   ChatMessageType,
   ChatRetrievalConfig,
-  ChatRetrievalService,
   ChatRetrievalStatus,
   MessageHandler,
   YouTubeAPIErrorCode,
@@ -12,7 +11,7 @@ import {
 } from "./types.js";
 import { z } from "zod";
 
-export class YouTubeChatRetrieval implements ChatRetrievalService {
+export class YouTubeChatRetrieval {
   private youtube = google.youtube("v3");
   private isRunning: boolean = false;
   private nextPageToken: string | null = null;
