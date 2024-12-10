@@ -1,9 +1,10 @@
 // src/services/chatRetrieval.ts
 
-import { google } from "googleapis";
+import { google, youtube_v3 } from "googleapis";
 import { OAuth2Client } from "googleapis-common";
 import {
   ChatMessage,
+  ChatMessageType,
   ChatRetrievalConfig,
   ChatRetrievalService,
   ChatRetrievalStatus,
@@ -11,6 +12,7 @@ import {
   YouTubeAPIErrorCode,
   YouTubeAPIErrorInfo,
 } from "./types.js";
+import { z } from "zod";
 
 export class YouTubeChatRetrieval implements ChatRetrievalService {
   private youtube = google.youtube("v3");
@@ -103,29 +105,69 @@ export class YouTubeChatRetrieval implements ChatRetrievalService {
     }
   }
 
-  private transformMessages(items: any[]): ChatMessage[] {
-    return items.map((item) => ({
-      id: item.id,
-      kind: "youtube#liveChatMessage",
-      snippet: {
-        type: item.snippet.type,
-        liveChatId: item.snippet.liveChatId,
-        publishedAt: item.snippet.publishedAt,
-        hasDisplayContent: item.snippet.hasDisplayContent,
-        displayMessage: item.snippet.displayMessage,
-      },
-      authorDetails: {
-        channelId: item.authorDetails.channelId,
-        channelUrl: item.authorDetails.channelUrl,
-        displayName: item.authorDetails.displayName,
-        profileImageUrl: item.authorDetails.profileImageUrl,
-        isVerified: item.authorDetails.isVerified,
-        isChatOwner: item.authorDetails.isChatOwner,
-        isChatSponsor: item.authorDetails.isChatSponsor,
-        isChatModerator: item.authorDetails.isChatModerator,
-      },
-      superChatDetails: item.snippet.superChatDetails,
-    }));
+  private transformMessages(
+    items: youtube_v3.Schema$LiveChatMessage[]
+  ): ChatMessage[] {
+    const schema = z.object({
+      id: z.string(),
+      kind: z.literal("youtube#liveChatMessage"),
+      snippet: z.object({
+        type: z.enum([
+          "textMessageEvent",
+          "superChatEvent",
+          "superStickerEvent",
+          "messageDeletedEvent",
+          "chatEndedEvent",
+        ]),
+        liveChatId: z.string(),
+        publishedAt: z.string(),
+        hasDisplayContent: z.boolean(),
+        displayMessage: z.string(),
+        superChatDetails: z.object({
+          amountMicros: z.number(),
+          currency: z.string(),
+          amountDisplayString: z.string(),
+          userComment: z.string(),
+          tier: z.number(),
+        }),
+      }),
+      authorDetails: z.object({
+        channelId: z.string(),
+        channelUrl: z.string(),
+        displayName: z.string(),
+        profileImageUrl: z.string(),
+        isVerified: z.boolean(),
+        isChatOwner: z.boolean(),
+        isChatSponsor: z.boolean(),
+        isChatModerator: z.boolean(),
+      }),
+    });
+
+    return items.map((item) => {
+      const parsed = schema.parse(item);
+      return {
+        id: parsed.id,
+        kind: "youtube#liveChatMessage",
+        snippet: {
+          type: parsed.snippet.type as ChatMessageType,
+          liveChatId: parsed.snippet.liveChatId,
+          publishedAt: parsed.snippet.publishedAt,
+          hasDisplayContent: parsed.snippet.hasDisplayContent,
+          displayMessage: parsed.snippet.displayMessage,
+        },
+        authorDetails: {
+          channelId: parsed.authorDetails.channelId,
+          channelUrl: parsed.authorDetails.channelUrl,
+          displayName: parsed.authorDetails.displayName,
+          profileImageUrl: parsed.authorDetails.profileImageUrl,
+          isVerified: parsed.authorDetails.isVerified,
+          isChatOwner: parsed.authorDetails.isChatOwner,
+          isChatSponsor: parsed.authorDetails.isChatSponsor,
+          isChatModerator: parsed.authorDetails.isChatModerator,
+        },
+        superChatDetails: parsed.snippet.superChatDetails,
+      };
+    });
   }
 
   private async notifyHandlers(messages: ChatMessage[]): Promise<void> {
