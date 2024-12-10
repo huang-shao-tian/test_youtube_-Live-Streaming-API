@@ -120,13 +120,15 @@ export class YouTubeChatRetrieval {
         publishedAt: z.string(),
         hasDisplayContent: z.boolean(),
         displayMessage: z.string(),
-        superChatDetails: z.object({
-          amountMicros: z.number(),
-          currency: z.string(),
-          amountDisplayString: z.string(),
-          userComment: z.string(),
-          tier: z.number(),
-        }),
+        superChatDetails: z
+          .object({
+            amountMicros: z.number(),
+            currency: z.string(),
+            amountDisplayString: z.string(),
+            userComment: z.string(),
+            tier: z.number(),
+          })
+          .optional(),
       }),
       authorDetails: z.object({
         channelId: z.string(),
