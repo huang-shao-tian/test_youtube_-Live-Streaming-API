@@ -1,6 +1,7 @@
 // src/services/chatRetrieval.ts
 
 import { google } from "googleapis";
+import { OAuth2Client } from "googleapis-common";
 import {
   ChatMessage,
   ChatRetrievalConfig,
@@ -22,7 +23,7 @@ export class YouTubeChatRetrieval implements ChatRetrievalService {
     totalMessages: 0,
   };
 
-  constructor(private readonly auth: any) {}
+  constructor(private readonly auth: OAuth2Client) {}
 
   public async start(config: ChatRetrievalConfig): Promise<void> {
     if (this.isRunning) {
